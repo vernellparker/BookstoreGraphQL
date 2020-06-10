@@ -1,0 +1,42 @@
+scalar Date
+
+type Book {
+  isbn: ID!
+  title: String!
+  publicationDate: Date
+  stocked: Boolean!
+  price: Float!
+  authorId: String!
+}
+
+type Author {
+  id: ID!
+  name: String!
+  BookIds: [String!]!
+}
+
+type Query {
+  Books: [Book!]!
+  author: [Author]!
+  sortByPrice(price:Float!, ascending: Boolean!): [Book!]!
+}
+
+input newBook {
+  isbn: ID!
+  title: String!
+  publishingDate: Date!
+  price: Float!
+  stocked: Boolean!
+  authorId: String!
+}
+
+input newAuthor {
+  id: ID!
+  name: String!
+  BookIds: [String!]!
+}
+
+type Mutation {
+  createBook(input: newBook!): Book!
+  CreateAuthor(input: newAuthor): Author!
+}
