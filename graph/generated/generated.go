@@ -64,9 +64,9 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Author      func(childComplexity int) int
-		Books       func(childComplexity int) int
-		SortByPrice func(childComplexity int, price float64, ascending bool) int
+		Authors          func(childComplexity int) int
+		Books            func(childComplexity int) int
+		SortBooksByPrice func(childComplexity int, ascending bool) int
 	}
 }
 
@@ -76,8 +76,8 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Books(ctx context.Context) ([]*model.Book, error)
-	Author(ctx context.Context) ([]*model.Author, error)
-	SortByPrice(ctx context.Context, price float64, ascending bool) ([]*model.Book, error)
+	Authors(ctx context.Context) ([]*model.Author, error)
+	SortBooksByPrice(ctx context.Context, ascending bool) ([]*model.Book, error)
 }
 
 type executableSchema struct {
@@ -182,12 +182,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateBook(childComplexity, args["input"].(model.NewBook)), true
 
-	case "Query.author":
-		if e.complexity.Query.Author == nil {
+	case "Query.authors":
+		if e.complexity.Query.Authors == nil {
 			break
 		}
 
-		return e.complexity.Query.Author(childComplexity), true
+		return e.complexity.Query.Authors(childComplexity), true
 
 	case "Query.Books":
 		if e.complexity.Query.Books == nil {
@@ -196,17 +196,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Books(childComplexity), true
 
-	case "Query.sortByPrice":
-		if e.complexity.Query.SortByPrice == nil {
+	case "Query.sortBooksByPrice":
+		if e.complexity.Query.SortBooksByPrice == nil {
 			break
 		}
 
-		args, err := ec.field_Query_sortByPrice_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_sortBooksByPrice_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.SortByPrice(childComplexity, args["price"].(float64), args["ascending"].(bool)), true
+		return e.complexity.Query.SortBooksByPrice(childComplexity, args["ascending"].(bool)), true
 
 	}
 	return 0, false
@@ -291,8 +291,8 @@ type Author {
 
 type Query {
   Books: [Book!]!
-  author: [Author]!
-  sortByPrice(price:Float!, ascending: Boolean!): [Book!]!
+  authors: [Author]!
+  sortBooksByPrice(ascending: Boolean!): [Book!]!
 }
 
 input newBook {
@@ -301,13 +301,12 @@ input newBook {
   publishingDate: Date!
   price: Float!
   stocked: Boolean!
-  authorId: String!
+  authorName: String!
 }
 
 input newAuthor {
   id: ID!
   name: String!
-  BookIds: [String!]!
 }
 
 type Mutation {
@@ -363,25 +362,17 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_sortByPrice_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_sortBooksByPrice_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 float64
-	if tmp, ok := rawArgs["price"]; ok {
-		arg0, err = ec.unmarshalNFloat2float64(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["price"] = arg0
-	var arg1 bool
+	var arg0 bool
 	if tmp, ok := rawArgs["ascending"]; ok {
-		arg1, err = ec.unmarshalNBoolean2bool(ctx, tmp)
+		arg0, err = ec.unmarshalNBoolean2bool(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["ascending"] = arg1
+	args["ascending"] = arg0
 	return args, nil
 }
 
@@ -840,7 +831,7 @@ func (ec *executionContext) _Query_Books(ctx context.Context, field graphql.Coll
 	return ec.marshalNBook2ᚕᚖgithubᚗcomᚋvernellparkerᚋBookstoreGraphQLᚋgraphᚋmodelᚐBookᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_author(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_authors(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -857,7 +848,7 @@ func (ec *executionContext) _Query_author(ctx context.Context, field graphql.Col
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Author(rctx)
+		return ec.resolvers.Query().Authors(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -874,7 +865,7 @@ func (ec *executionContext) _Query_author(ctx context.Context, field graphql.Col
 	return ec.marshalNAuthor2ᚕᚖgithubᚗcomᚋvernellparkerᚋBookstoreGraphQLᚋgraphᚋmodelᚐAuthor(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_sortByPrice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_sortBooksByPrice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -890,7 +881,7 @@ func (ec *executionContext) _Query_sortByPrice(ctx context.Context, field graphq
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_sortByPrice_args(ctx, rawArgs)
+	args, err := ec.field_Query_sortBooksByPrice_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -898,7 +889,7 @@ func (ec *executionContext) _Query_sortByPrice(ctx context.Context, field graphq
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().SortByPrice(rctx, args["price"].(float64), args["ascending"].(bool))
+		return ec.resolvers.Query().SortBooksByPrice(rctx, args["ascending"].(bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2057,12 +2048,6 @@ func (ec *executionContext) unmarshalInputnewAuthor(ctx context.Context, obj int
 			if err != nil {
 				return it, err
 			}
-		case "BookIds":
-			var err error
-			it.BookIds, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		}
 	}
 
@@ -2105,9 +2090,9 @@ func (ec *executionContext) unmarshalInputnewBook(ctx context.Context, obj inter
 			if err != nil {
 				return it, err
 			}
-		case "authorId":
+		case "authorName":
 			var err error
-			it.AuthorID, err = ec.unmarshalNString2string(ctx, v)
+			it.AuthorName, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2276,7 +2261,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
-		case "author":
+		case "authors":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -2284,13 +2269,13 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_author(ctx, field)
+				res = ec._Query_authors(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
 				return res
 			})
-		case "sortByPrice":
+		case "sortBooksByPrice":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -2298,7 +2283,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_sortByPrice(ctx, field)
+				res = ec._Query_sortBooksByPrice(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

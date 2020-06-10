@@ -1,30 +1,25 @@
 package input
 
 import (
-
+	"errors"
 	"github.com/vernellparker/BookstoreGraphQL/graph/model"
-	"math/rand"
-	"time"
 )
 
-func CheckForAuthorByName(name string, r []*model.Author) *model.Author {
-	for _, author := range r {
-		if name == author.Name {
-			return author
-		}
-	}
-	return CreateAnAuthor(name, nil)
+type CheckForAuthorByNameInput struct {
+	Name string
+	Authors []*model.Author
+	BookISBN string
 }
 
-func CreateAnAuthor(name string, books []model.Book) *model.Author{
-	s1 := rand.NewSource(time.Now().UnixNano())
-	r1 := rand.New(s1)
-	author := &model.Author{
-		ID:   string(r1.Intn(1000)),
-		Name: name,
-		Books: nil,
+
+//This function checks for the author by name and adds a the book to that author
+func CheckForAuthorByName(input CheckForAuthorByNameInput) (string, error) {
+	for _, author := range input.Authors {
+		if input.Name == author.Name {
+			author.BookIds = append(author.BookIds,input.BookISBN )
+			return author.ID, nil
+		}
 	}
-	if books != nil {
-		author.Books = books
-	}
+	return "", errors.New("author not in database")
 }
+

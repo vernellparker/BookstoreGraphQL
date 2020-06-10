@@ -7,6 +7,6 @@ import "github.com/vernellparker/BookstoreGraphQL/graph/model"
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct{
-	BooksStorage []*model.Book
-	Authors []*model.Author
+	BooksDB   []*model.Book
+	AuthorsDB []*model.Author
 }

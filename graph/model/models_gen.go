@@ -18,9 +18,8 @@ type Book struct {
 }
 
 type NewAuthor struct {
-	ID      string   `json:"id"`
-	Name    string   `json:"name"`
-	BookIds []string `json:"BookIds"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 type NewBook struct {
@@ -29,5 +28,5 @@ type NewBook struct {
 	PublishingDate string  `json:"publishingDate"`
 	Price          float64 `json:"price"`
 	Stocked        bool    `json:"stocked"`
-	AuthorID       string  `json:"authorId"`
+	AuthorName     string  `json:"authorName"`
 }

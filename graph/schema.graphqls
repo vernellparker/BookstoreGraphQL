@@ -17,8 +17,8 @@ type Author {
 
 type Query {
   Books: [Book!]!
-  author: [Author]!
-  sortByPrice(price:Float!, ascending: Boolean!): [Book!]!
+  authors: [Author]!
+  sortBooksByPrice(ascending: Boolean!): [Book!]!
 }
 
 input newBook {
@@ -27,13 +27,12 @@ input newBook {
   publishingDate: Date!
   price: Float!
   stocked: Boolean!
-  authorId: String!
+  authorName: String!
 }
 
 input newAuthor {
   id: ID!
   name: String!
-  BookIds: [String!]!
 }
 
 type Mutation {

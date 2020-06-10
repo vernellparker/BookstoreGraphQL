@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	//Sets up gin to handle requests
+	//Sets up gin to handle requests. Gin is also a 3rd party that allows for better HTTP, middleware, logging etc
 	r := gin.Default()
 	r.POST("/query", graphqlHandlers.GraphqlHandler())
 	r.GET("/", graphqlHandlers.PlaygroundHandler())
