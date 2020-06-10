@@ -60,7 +60,7 @@ func (r *queryResolver) SortBooksByPrice(ctx context.Context, ascending bool) ([
 	return books, nil
 }
 
-func (r *queryResolver) GetAuthor(ctx context.Context, id string) (*model.Author, error) {
+func (r *queryResolver) Author(ctx context.Context, id string) (*model.Author, error) {
 	for _, a := range r.AuthorsDB {
 		if a.ID == id {
 			return a, nil
@@ -69,7 +69,7 @@ func (r *queryResolver) GetAuthor(ctx context.Context, id string) (*model.Author
 	return nil, errors.New("no author with that id was found")
 }
 
-func (r *queryResolver) GetBook(ctx context.Context, isbn string) (*model.Book, error) {
+func (r *queryResolver) Book(ctx context.Context, isbn string) (*model.Book, error) {
 	for _, b := range r.BooksDB {
 		if b.Isbn == isbn {
 			return b, nil

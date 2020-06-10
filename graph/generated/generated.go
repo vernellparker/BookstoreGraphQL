@@ -64,10 +64,10 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		Author           func(childComplexity int, id string) int
 		Authors          func(childComplexity int) int
+		Book             func(childComplexity int, isbn string) int
 		Books            func(childComplexity int) int
-		GetAuthor        func(childComplexity int, id string) int
-		GetBook          func(childComplexity int, isbn string) int
 		SortBooksByPrice func(childComplexity int, ascending bool) int
 	}
 }
@@ -80,8 +80,8 @@ type QueryResolver interface {
 	Books(ctx context.Context) ([]*model.Book, error)
 	Authors(ctx context.Context) ([]*model.Author, error)
 	SortBooksByPrice(ctx context.Context, ascending bool) ([]*model.Book, error)
-	GetAuthor(ctx context.Context, id string) (*model.Author, error)
-	GetBook(ctx context.Context, isbn string) (*model.Book, error)
+	Author(ctx context.Context, id string) (*model.Author, error)
+	Book(ctx context.Context, isbn string) (*model.Book, error)
 }
 
 type executableSchema struct {
@@ -186,6 +186,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateBook(childComplexity, args["input"].(model.NewBook)), true
 
+	case "Query.author":
+		if e.complexity.Query.Author == nil {
+			break
+		}
+
+		args, err := ec.field_Query_author_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Author(childComplexity, args["id"].(string)), true
+
 	case "Query.authors":
 		if e.complexity.Query.Authors == nil {
 			break
@@ -193,36 +205,24 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Authors(childComplexity), true
 
-	case "Query.Books":
+	case "Query.book":
+		if e.complexity.Query.Book == nil {
+			break
+		}
+
+		args, err := ec.field_Query_book_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Book(childComplexity, args["isbn"].(string)), true
+
+	case "Query.books":
 		if e.complexity.Query.Books == nil {
 			break
 		}
 
 		return e.complexity.Query.Books(childComplexity), true
-
-	case "Query.getAuthor":
-		if e.complexity.Query.GetAuthor == nil {
-			break
-		}
-
-		args, err := ec.field_Query_getAuthor_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.GetAuthor(childComplexity, args["id"].(string)), true
-
-	case "Query.getBook":
-		if e.complexity.Query.GetBook == nil {
-			break
-		}
-
-		args, err := ec.field_Query_getBook_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.GetBook(childComplexity, args["isbn"].(string)), true
 
 	case "Query.sortBooksByPrice":
 		if e.complexity.Query.SortBooksByPrice == nil {
@@ -318,11 +318,11 @@ type Author {
 }
 
 type Query {
-  Books: [Book!]!
+  books: [Book!]!
   authors: [Author]!
   sortBooksByPrice(ascending: Boolean!): [Book!]!
-  getAuthor(id:String!): Author!
-  getBook(isbn:String!): Book!
+  author(id:String!): Author!
+  book(isbn:String!): Book!
 }
 
 input newBook {
@@ -392,7 +392,7 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_getAuthor_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_author_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -406,7 +406,7 @@ func (ec *executionContext) field_Query_getAuthor_args(ctx context.Context, rawA
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_getBook_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_book_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -855,7 +855,7 @@ func (ec *executionContext) _Mutation_CreateAuthor(ctx context.Context, field gr
 	return ec.marshalNAuthor2ᚖgithubᚗcomᚋvernellparkerᚋBookstoreGraphQLᚋgraphᚋmodelᚐAuthor(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_Books(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_books(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -964,7 +964,7 @@ func (ec *executionContext) _Query_sortBooksByPrice(ctx context.Context, field g
 	return ec.marshalNBook2ᚕᚖgithubᚗcomᚋvernellparkerᚋBookstoreGraphQLᚋgraphᚋmodelᚐBookᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_getAuthor(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_author(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -980,7 +980,7 @@ func (ec *executionContext) _Query_getAuthor(ctx context.Context, field graphql.
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_getAuthor_args(ctx, rawArgs)
+	args, err := ec.field_Query_author_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -988,7 +988,7 @@ func (ec *executionContext) _Query_getAuthor(ctx context.Context, field graphql.
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetAuthor(rctx, args["id"].(string))
+		return ec.resolvers.Query().Author(rctx, args["id"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1005,7 +1005,7 @@ func (ec *executionContext) _Query_getAuthor(ctx context.Context, field graphql.
 	return ec.marshalNAuthor2ᚖgithubᚗcomᚋvernellparkerᚋBookstoreGraphQLᚋgraphᚋmodelᚐAuthor(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_getBook(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_book(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1021,7 +1021,7 @@ func (ec *executionContext) _Query_getBook(ctx context.Context, field graphql.Co
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_getBook_args(ctx, rawArgs)
+	args, err := ec.field_Query_book_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -1029,7 +1029,7 @@ func (ec *executionContext) _Query_getBook(ctx context.Context, field graphql.Co
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetBook(rctx, args["isbn"].(string))
+		return ec.resolvers.Query().Book(rctx, args["isbn"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2387,7 +2387,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "Books":
+		case "books":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -2395,7 +2395,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_Books(ctx, field)
+				res = ec._Query_books(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -2429,7 +2429,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
-		case "getAuthor":
+		case "author":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -2437,13 +2437,13 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_getAuthor(ctx, field)
+				res = ec._Query_author(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
 				return res
 			})
-		case "getBook":
+		case "book":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -2451,7 +2451,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_getBook(ctx, field)
+				res = ec._Query_book(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

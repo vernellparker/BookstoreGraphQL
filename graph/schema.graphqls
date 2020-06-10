@@ -16,11 +16,11 @@ type Author {
 }
 
 type Query {
-  Books: [Book!]!
+  books: [Book!]!
   authors: [Author]!
   sortBooksByPrice(ascending: Boolean!): [Book!]!
-  getAuthor(id:String!): Author!
-  getBook(isbn:String!): Book!
+  author(id:String!): Author!
+  book(isbn:String!): Book!
 }
 
 input newBook {
