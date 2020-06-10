@@ -19,6 +19,8 @@ type Query {
   Books: [Book!]!
   authors: [Author]!
   sortBooksByPrice(ascending: Boolean!): [Book!]!
+  getAuthor(id:String!): Author!
+  getBook(isbn:String!): Book!
 }
 
 input newBook {
