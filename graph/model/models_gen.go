@@ -3,9 +3,9 @@
 package model
 
 type Author struct {
-	ID      string   `json:"id"`
-	Name    string   `json:"name"`
-	BookIds []string `json:"BookIds"`
+	ID    string  `json:"id"`
+	Name  string  `json:"name"`
+	Books []*Book `json:"books"`
 }
 
 type Book struct {
@@ -14,7 +14,7 @@ type Book struct {
 	PublicationDate *string `json:"publicationDate"`
 	Stocked         bool    `json:"stocked"`
 	Price           float64 `json:"price"`
-	AuthorID        string  `json:"authorId"`
+	Author          *Author `json:"author"`
 }
 
 type NewAuthor struct {

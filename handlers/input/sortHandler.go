@@ -3,7 +3,8 @@ package input
 import (
 	"errors"
 	"github.com/vernellparker/BookstoreGraphQL/graph/model"
-)
+	)
+
 
 //Sorts the books in the DB
 func SortBooks(books []*model.Book, ascending bool) ([]*model.Book, error) {

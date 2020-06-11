@@ -6,13 +6,13 @@ type Book {
   publicationDate: Date
   stocked: Boolean!
   price: Float!
-  authorId: String!
+  author: Author!
 }
 
 type Author {
   id: ID!
   name: String!
-  BookIds: [String!]!
+  books: [Book!]!
 }
 
 type Query {
